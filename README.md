@@ -7,6 +7,7 @@ Build | Test
 <summary><b>Log otomatis (klik untuk buka)</b></summary>
 
 <!-- CI-LOG-START -->
+2012 1
 1912 2
 1912 1
 1812 2
