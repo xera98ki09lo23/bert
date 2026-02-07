@@ -1,0 +1,42 @@
+#docker-image.yml
+name: CI docker
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'trigger source'
+        required: false
+        default: 'cron-job.org'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Update README (hidden CI log) + data.txt
+        run: |
+          set -e
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          touch README.md
+          touch data.txt
+          if ! grep -q "<!-- CI-LOG-START -->" README.md; then
+            printf "\n## CI Logs\n\n<details>\n<summary><b>Log otomatis (klik untuk buka)</b></summary>\n\n<!-- CI-LOG-START -->\n<!-- CI-LOG-END -->\n\n</details>\n" >> README.md
+          fi
+          for INSER in 1 2; do
+            sleep 1
+            HOURS=$(date +%H%M)
+            sed -i "/<!-- CI-LOG-START -->/a\\$HOURS $INSER" README.md
+            git add README.md
+            git commit -m "ci: update hidden log & data"
+            git push
+          done
+          echo "$(date '+%H:%M')" >> data.txt
+          tail -n 10 data.txt > data.txt.tmp
+          mv data.txt.tmp data.txt
+          git add data.txt
+          git commit -m "ci: data"
+          git push
+          
